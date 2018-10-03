@@ -19,6 +19,8 @@ class MovieLists(View):
         for r in view:
             doc = r.doc
             movie_titles.append(doc.copy())
+
+        movie_titles = sorted(movie_titles, key=lambda k: k['title'])
         return HttpResponse(json.dumps(movie_titles))
 
 
@@ -63,7 +65,8 @@ class DeleteMovie(View):
     def delete(self, request, movie_id):
         try:
             doc = DB_MOVIES.get(movie_id)
-            DB_MOVIES.delete(doc)
+            doc['is_active'] = False
+            DB_MOVIES.save(doc)
             return HttpResponse(json.dumps('ok'))
         except:
             return HttpResponse(json.dumps('error'))
