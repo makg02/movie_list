@@ -34,7 +34,7 @@ Start the frontend server
 npm start
 ```
 
-And visit [http://127.0.0.1:300](http://127.0.0.1:3000)
+And visit [http://127.0.0.1:3000](http://127.0.0.1:3000)
 
 Running the Django
 ------------
