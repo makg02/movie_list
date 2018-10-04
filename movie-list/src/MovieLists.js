@@ -52,10 +52,22 @@ class MovieLists extends Component {
     super(props);
     this.state = {
       open : false,
-      //movies : this.props.movies,
+      movies : [],
     }
 
 
+  }
+
+  componentWillMount(){
+    axios.get('http://localhost:8000/movie_list')
+      .then(res => {
+        const movies = res.data;
+        console.log(res)
+        this.setState({movies:movies})
+
+      }).catch(err =>{
+        alert(err)
+      });
   }
 
 
@@ -69,25 +81,22 @@ class MovieLists extends Component {
      console.log(e)
      this.setState({ open: false });
    } else{
+
      this.setState({ open: false });
    }
 
  };
 
   render(){
-    //console.log(this.state.open)
-    console.log(this.state)
-    const { classes, movies} = this.props;
-    //const movies = this.state.movies;
 
-    //const
-    console.log(movies)
+    console.log(this.state)
+    const { classes } = this.props;
 
 
     return (
       <div className={classes.root}>
         <List>
-            {movies.map((movie) =>
+            {this.state.movies.map((movie) =>
               <ListItem key={movie._id}>
                 <Avatar>
                   <VideoIcon />
@@ -95,12 +104,16 @@ class MovieLists extends Component {
                <ListItemText primary={movie.title} secondary={movie.is_active ? 'Active' : 'Not Active'} />
                <ListItemSecondaryAction>
 
-                    <Button variant="outlined" className={classes.button}>
-                      View
-                    </Button>
-                    <Button variant="contained" color="primary" className={classes.button}>
-                      Edit
-                    </Button>
+                    <Link to={`/view/${movie._id}`} style={{ color: '#FFF', textDecoration: 'none' }}>
+                      <Button variant="outlined" className={classes.button}>
+                        View
+                      </Button>
+                    </Link>
+                    <Link to={`/update/${movie._id}`} style={{ color: '#FFF', textDecoration: 'none' }}>
+                      <Button variant="contained" color="primary" className={classes.button}>
+                        Edit
+                      </Button>
+                    </Link>
 
 
 
