@@ -1,29 +1,60 @@
 import couchdb
 import json
 from pprint import pprint
+from django.conf import settings
 from django.contrib.sessions.backends.db import SessionStore
 from django.shortcuts import get_object_or_404, render
-from django.shortcuts import render, HttpResponse
+from django.http import HttpResponse
 from django.views.generic import View
 from movie import settings
 from datetime import datetime
+import time
+from datetime import datetime, timedelta, date
+from pytz import timezone
 
 s = couchdb.Server(settings.COUCH_DSN)
 
 DB_MOVIES = s['movies']
 
 # Create your views here.
+#datetime.now().strftime('%B %d %Y %H:%M:%S')
+def get_ph_time(as_array = False):
+    utc_tz = timezone('UTC')
+    ph_tz = timezone('Asia/Manila')
+    now = utc_tz.localize(datetime.utcnow()).astimezone(ph_tz)
+
+    #set date without timezone
+    if as_array:
+        now = [now.year, now.month, now.day,
+            now.hour, now.minute, now.second, now.microsecond]
+    else:
+        now = datetime(now.year, now.month, now.day,
+            now.hour, now.minute, now.second, now.microsecond)
+    return now
 
 
 class MovieLists(View):
 
+
     def get(self, request):
 
 
+        return_data = {}
+        session_store = SessionStore()
 
-        if 'movies' not in s:
-            db = s.create('movies')
-            return HttpResponse(json.dumps('succesfully create movies db'), 'application/json')
+
+        if not session_store.has_key('last_visit'):
+            print False
+            return_data['is_visit'] = False
+            session_store['last_visit'] = get_ph_time().strftime('%B %d %Y %H:%M:%S')
+            session_store.save()
+
+        if session_store['last_visit'] != None:
+            #session_store.pop('last_visit')
+            return_data['is_visit'] = True
+            return_data['last_visit_time'] = session_store.get('last_visit')
+            session_store['last_visit'] = get_ph_time().strftime('%B %d %Y %H:%M:%S')
+            session_store.save()
 
         view = DB_MOVIES.view('_all_docs', include_docs=True)
         movie_titles = []
@@ -32,10 +63,11 @@ class MovieLists(View):
             if doc.get('is_active') == True:
                 movie_titles.append(doc.copy())
 
+        #print "movie list :%s " % x['last_visit']
         movies = sorted(movie_titles, key=lambda k: k['title'].lower())
 
-        #pprint(movies)
-        return HttpResponse(json.dumps(movies), 'application/json')
+        return_data['movies'] = movies
+        return HttpResponse(json.dumps(return_data), 'application/json')
 
 
 class AddMovie(View):

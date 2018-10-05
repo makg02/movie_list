@@ -8,28 +8,22 @@ import IconButton from '@material-ui/core/IconButton';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
 import VideoIcon from '@material-ui/icons/Videocam';
-import WorkIcon from '@material-ui/icons/Work';
-import BeachAccessIcon from '@material-ui/icons/BeachAccess';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Button from '@material-ui/core/Button';
 
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 import ThumbUp from '@material-ui/icons/ThumbUp';
 import ThumbUpAltOutlined from '@material-ui/icons/ThumbUpAltOutlined';
 
-
+import Snackbar from '@material-ui/core/Snackbar';
 
 import axios from 'axios';
 
 
 import {
-  BrowserRouter as Router,
-  Route,
   Link
 } from 'react-router-dom'
 
@@ -59,17 +53,36 @@ class MovieLists extends Component {
       open : false,
       movies : [],
       deleteId  : '',
+      is_visit : false,
+      vertical: 'top',
+      horizontal: 'center',
+      last_visit_time : ''
+
     }
 
 
   }
 
   componentDidMount(){
+
     axios.get('http://localhost:8000/movie_list')
       .then(res => {
-        const movies = res.data;
+
         console.log(res)
-        this.setState({movies:movies})
+
+        const movies = res.data.movies;
+        const is_visit = res.data.is_visit;
+        const last_visit_time = res.data.last_visit_time;
+
+        if (is_visit){
+          this.setState({movies: movies})
+          this.setState({is_visit : is_visit})
+          this.setState({last_visit_time : last_visit_time})
+        } else{
+          this.setState({movies: movies})
+          this.setState({is_visit : is_visit})
+          this.setState({last_visit_time : ''})
+        }
 
       }).catch(err =>{
         alert(err)
@@ -142,10 +155,24 @@ class MovieLists extends Component {
 
     console.log(this.state)
     const { classes } = this.props;
-
+    const { vertical, horizontal, is_visit, last_visit_time} = this.state;
 
     return (
       <div className={classes.root}>
+
+
+          <Snackbar
+            anchorOrigin={{ vertical, horizontal }}
+            open={true}
+            onClose={this.handleClose}
+            ContentProps={{
+            'aria-describedby': 'message-id',
+          }}
+          message={is_visit ? <span id="message-id"> `Welcome back! You've visited this page last {last_visit_time} `</span> : <span id="message-id">Welcome to our site!</span>}
+          />
+
+
+
         <List>
             {this.state.movies.map((movie) =>
               <ListItem key={movie._id}>
@@ -166,16 +193,17 @@ class MovieLists extends Component {
 
 
 
-                    <Link to={`/view/${movie._id}`} style={{ color: '#FFF', textDecoration: 'none' }}>
+                  <Link to={{ pathname: `/view/${movie._id}`, state:{ fromAdd : false, fromEdit : false }, style: {color : '#FFF', textDecoration : 'none'}}}>
                       <Button variant="outlined" className={classes.button}>
                         View
                       </Button>
-                    </Link>
-                    <Link to={`/update/${movie._id}`} style={{ color: '#FFF', textDecoration: 'none' }}>
+                  </Link>
+
+                  <Link to={`/update/${movie._id}`} style={{ color: '#FFF', textDecoration: 'none' }}>
                       <Button variant="contained" color="primary" className={classes.button}>
                         Edit
                       </Button>
-                    </Link>
+                  </Link>
 
 
 

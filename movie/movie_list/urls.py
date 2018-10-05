@@ -6,6 +6,7 @@ urlpatterns = [
     url(r'^/add', AddMovie.as_view(), name="add_movie"),
     url(r'^/update', UpdateMovie.as_view(), name="update_movie"),
     url(r'^/like', LikeMovie.as_view(), name="like" ),
+#    url(r'^/session', Session.as_view(), name="session" ),
     url(r'^/view/(?P<movie_id>[0-9a-f-]+)', ViewMovie.as_view(), name="view_movie" ),
     url(r'^/delete/(?P<movie_id>[0-9a-f-]+)', DeleteMovie.as_view(), name="delete_movie" )
 ]

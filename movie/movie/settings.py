@@ -94,3 +94,5 @@ USE_TZ = True
 COUCH_DSN = 'http://admin:admin@127.0.0.1:5984'
 
 STATIC_URL = '/static/'
+
+SESSION_SAVE_EVERY_REQUEST = True
