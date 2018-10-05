@@ -14,7 +14,18 @@ Visit [CouchDB](http://couchdb.apache.org/#download) download the latest version
 
 After the installation run python command line.
 
-Then visit [http://127.0.0.1:5984](http://127.0.0.1: 5984)
+Then visit [http://127.0.0.1:5984](http://127.0.0.1:5984) and set admin account username and password to admin.
+
+Couchdb Admin Interface:
+
+![alt text](https://www.1and1.com/cloud-community/fileadmin/community/Screenshots/Database/CouchDB/4_Steps_to_Improve_Your_CouchDB_Security/improve-couchdb-security-02.jpg)
+
+
+Create database movies
+
+![alt text](https://support.smartbear.com/readyapi/docs/_images/testing/integrations/couchdb-add-database.png)
+
+or using python command
 
 ```bash
 >>> import couchdb
