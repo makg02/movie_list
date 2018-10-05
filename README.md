@@ -55,6 +55,8 @@ pip install -r requirements.txt
 Start the django server
 
 ```
+python manage.py migrate
+python manage.py syncdb
 python manage.py runserver
 ```
 
