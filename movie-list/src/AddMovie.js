@@ -106,7 +106,7 @@ class AddMovie extends React.Component {
     if(redirectToReferrer && redirectLink){
       const id = this.state.id;
       console.log(this.state.redirectLink)
-      return <Redirect to={this.state.redirectLink} />
+      return <Redirect to={{ pathname : this.state.redirectLink, state : { fromAdd : true}}} />
 
     }
 

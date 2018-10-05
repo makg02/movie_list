@@ -19,6 +19,11 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
+import ThumbUp from '@material-ui/icons/ThumbUp';
+import ThumbUpAltOutlined from '@material-ui/icons/ThumbUpAltOutlined';
+
+
+
 import axios from 'axios';
 
 
@@ -53,12 +58,13 @@ class MovieLists extends Component {
     this.state = {
       open : false,
       movies : [],
+      deleteId  : '',
     }
 
 
   }
 
-  componentWillMount(){
+  componentDidMount(){
     axios.get('http://localhost:8000/movie_list')
       .then(res => {
         const movies = res.data;
@@ -75,15 +81,60 @@ class MovieLists extends Component {
    this.setState({ open: true });
  };
 
- handleClose = (e) => {
+ handleDelete = (bool) => {
 
-   if(e){
-     console.log(e)
-     this.setState({ open: false });
+   if(bool){
+     console.log(bool)
+     console.log(this.state.deleteId)
+     const delStateId = this.state.deleteId;
+     const delApi = 'http://localhost:8000/movie_list/delete/' + delStateId;
+
+     axios.delete(delApi)
+      .then(res => {
+        console.log(res)
+        const m = res.data;
+        this.setState({open : false});
+        this.setState({deleteId : ''});
+        this.setState({movies : m})
+
+      }).catch(err => {
+        alert(err)
+      });
+
    } else{
 
      this.setState({ open: false });
+     this.setState({ deleteId : ''});
+     console.log(this.state)
    }
+
+ };
+
+ handleDialog = (id) => {
+   console.log(id)
+   this.setState({open: true})
+   this.setState({deleteId : id})
+ };
+
+ handleThumbsUp = (id, bool) => {
+   console.log(id);
+   console.log(bool);
+
+   const data = {
+     '_id' : id,
+     'like' : bool
+   }
+   //console.log(likeApi)
+   console.log(data)
+
+  axios.post('http://localhost:8000/movie_list/like', data)
+    .then(res => {
+      const t = res.data;
+      this.setState({movies : t})
+    }).catch(err => {
+      console.log(err)
+    })
+
 
  };
 
@@ -104,6 +155,17 @@ class MovieLists extends Component {
                <ListItemText primary={movie.title} secondary={movie.is_active ? 'Active' : 'Not Active'} />
                <ListItemSecondaryAction>
 
+               {movie.like ?
+                <IconButton aria-label="ThumbUp">
+                  <ThumbUp onClick={(e) => this.handleThumbsUp(movie._id, !movie.like, e)}/>
+                </IconButton> :
+                <IconButton aria-label="ThumbUp">
+                  <ThumbUpAltOutlined onClick={(e) => this.handleThumbsUp(movie._id, !movie.like, e)}/>
+                </IconButton>
+                }
+
+
+
                     <Link to={`/view/${movie._id}`} style={{ color: '#FFF', textDecoration: 'none' }}>
                       <Button variant="outlined" className={classes.button}>
                         View
@@ -118,32 +180,35 @@ class MovieLists extends Component {
 
 
                      <IconButton aria-label="Delete">
-                       <DeleteIcon  onClick={this.handleClickOpen}/>
+                       <DeleteIcon  onClick={(e) => this.handleDialog(movie._id, e)}/>
                      </IconButton>
 
-                     <Dialog
-                       open={this.state.open}
-                       onClose={this.handleClose}
-                       aria-labelledby="alert-dialog-title"
-                       aria-describedby="alert-dialog-description"
-                     >
 
-                     <DialogTitle id="alert-dialog-title">{"Are you sure you would like to delete this?"}</DialogTitle>
 
-                     <DialogActions>
-                       <Button onClick={() => this.handleClose(false)} color="primary">
-                         Disagree
-                       </Button>
-                       <Button onClick={() => this.handleClose(true)} color="primary" autoFocus>
-                         Agree
-                       </Button>
-                     </DialogActions>
-                   </Dialog>
                </ListItemSecondaryAction>
               </ListItem>
+
             )}
 
         </List>
+
+      <Dialog
+         open={this.state.open}
+         onClose={this.handleClose}
+         aria-labelledby="alert-dialog-title"
+         aria-describedby="alert-dialog-description"
+       >
+       <DialogTitle id="alert-dialog-title">{"Are you sure you would like to delete this?"}</DialogTitle>
+         <DialogActions>
+           <Button onClick={(e) => this.handleDelete(false, e)} color="primary">
+             Disagree
+           </Button>
+           <Button onClick={(e) => this.handleDelete(true, e)} color="primary" autoFocus>
+             Agree
+           </Button>
+         </DialogActions>
+       </Dialog>
+
     </div>
     )
   }

@@ -15,10 +15,12 @@ import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import Snackbar from '@material-ui/core/Snackbar';
+
 import axios from 'axios';
 
-
+import {
+  Redirect,
+} from 'react-router-dom'
 
 const styles = theme => ({
   root: {
@@ -49,19 +51,39 @@ const ranges = [
 
 ];
 
-class MovieDetail extends React.Component {
+class UpdateMovie extends React.Component {
 
   state = {
 
     title: '',
     description: '',
+    _id : '',
+    _rev : '',
     is_active: false,
-    fromAdd : false,
-    fromEdit : false,
-    vertical: 'top',
-    horizontal: 'center'
+    redirectToReferrer : false,
+    redirectLink : ''
 
   };
+
+  componentDidMount(){
+    console.log(this.props.match.params.id)
+    const movieId = this.props.match.params.id;
+    const viewApi = "http://localhost:8000/movie_list/view/" + movieId;
+    axios.get(viewApi).then(res =>{
+      console.log(res)
+      this.setState({
+        _id : res.data._id,
+        _rev : res.data._rev,
+        title : res.data.title,
+        description : res.data.description,
+        is_active : res.data.is_active,
+      })
+    }).catch(err =>{
+      alert(err)
+    })
+
+  }
+
 
   handleChange = prop => event => {
     this.setState({ [prop]: event.target.value });
@@ -72,62 +94,50 @@ class MovieDetail extends React.Component {
     this.setState(state => ({ showPassword: !state.showPassword }));
   };
 
-  componentDidMount(){
-    console.log(this.props.location.state.fromAdd)
-    if (this.props.location.state.fromAdd){
-        this.setState({fromAdd : true})
+  handleSubmit = () => {
+    console.log(this.state)
+    const data = {
+      _id : this.state._id,
+      _rev : this.state._rev,
+      title : this.state.title,
+      description : this.state.description,
+      is_active  : this.state.is_active
     }
-
-    if (this.props.location.state.fromEdit){
-        this.setState({fromEdit: true})
-    }
-
-    //console.log(this.props.match.params.id)
-    const movieId = this.props.match.params.id;
-    const viewApi = "http://localhost:8000/movie_list/view/" + movieId;
-    axios.get(viewApi).then(res =>{
-      console.log(res)
-      this.setState({
-        title : res.data.title,
-        description : res.data.description,
-        is_active : res.data.is_active
-      })
-    }).catch(err =>{
-      alert(err)
-    })
-
-  }
+    axios.post('http://localhost:8000/movie_list/update', data)
+      .then(res => {
+        console.log(res)
+        if(res.status ===200){
+          this.setState({redirectToReferrer: true})
+          const rl = '/view/' + res.data;
+          this.setState({redirectLink : rl})
+        }
+      }).catch(
+        err =>{
+          alert(err)
+        }
+      )
+    //this.setState(state => ({ showPassword: !state.showPassword }));
+  };
 
 
 
   render() {
     const { classes } = this.props;
-    const { vertical, horizontal, fromAdd, fromEdit} = this.state;
+    const redirectToReferrer = this.state.redirectToReferrer;
+    const redirectLink = this.state.redirectLink;
+
+
+    if(redirectToReferrer && redirectLink){
+      const id = this.state.id;
+      console.log(this.state.redirectLink)
+      return <Redirect to={{ pathname : this.state.redirectLink, state : { fromEdit : true}}} />
+
+    }
+
     return (
+
       <div className={classes.root}>
-        <Snackbar
-          anchorOrigin={{ vertical, horizontal }}
-          open={fromAdd}
-          onClose={this.handleClose}
-          ContentProps={{
-          'aria-describedby': 'message-id',
-        }}
-        message={<span id="message-id">{this.state.title} successfully created!</span>}
-        />
-
-        <Snackbar
-          anchorOrigin={{ vertical, horizontal }}
-          open={fromEdit}
-          onClose={this.handleClose}
-          ContentProps={{
-          'aria-describedby': 'message-id',
-        }}
-        message={<span id="message-id">{this.state.title} successfully edited!</span>}
-        />
-
-
         <TextField fullWidth
-          disabled
           label="Movie Title"
           value={this.state.title}
           onChange={this.handleChange('title')}
@@ -139,7 +149,6 @@ class MovieDetail extends React.Component {
         />
         <TextField
           select
-          disabled
           label="Select Status"
           className={classNames(classes.margin, classes.textField)}
           value={this.state.is_active}
@@ -155,7 +164,6 @@ class MovieDetail extends React.Component {
         <FormControl fullWidth className={classes.margin}>
           <InputLabel htmlFor="adornment-amount">Movie Description</InputLabel>
           <Input
-            disabled
             id="adornment-amount"
             value={this.state.description}
             onChange={this.handleChange('description')}
@@ -164,7 +172,16 @@ class MovieDetail extends React.Component {
 
 
         </FormControl>
-
+        <Grid
+          container
+          direction="row"
+          justify="center"
+          alignItems="center"
+          className={classes.root}>
+          <Button onClick={this.handleSubmit} size="small" variant="contained" color="primary" className={classes.button} >
+            UPDATE
+          </Button>
+        </Grid>
 
 
 
@@ -173,8 +190,8 @@ class MovieDetail extends React.Component {
   }
 }
 
-MovieDetail.propTypes = {
+UpdateMovie.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(MovieDetail);
+export default withStyles(styles)(UpdateMovie);

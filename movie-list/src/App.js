@@ -7,7 +7,7 @@ import AddMovie from './AddMovie.js'
 import MovieAppBar from './MovieAppBar.js'
 import MovieLists from './MovieLists.js'
 import MovieDetail from './MovieDetail'
-
+import UpdateMovie from './UpdateMovie'
 
 import {
   BrowserRouter as Router,
@@ -25,11 +25,9 @@ const App = () => (
       <MovieAppBar />
       <Route exact path="/" component={MovieLists}/>
       <Route path="/add" component={AddMovie}/>
+      <Route path="/update/:id" component={UpdateMovie} />
       <Route path="/view/:id" component={MovieDetail} />
-      {/*
-      <Route path="/add" component={About}/>
-      <Route path="/topics" component={Topics}/>
-      */}
+
     </div>
   </Router>
 )
