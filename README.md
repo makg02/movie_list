@@ -12,6 +12,14 @@ Database Installation
 
 Visit [CouchDB](http://couchdb.apache.org/#download) download the latest version based on your environment.
 
+After the installation run python command line.
+```bash
+>>> import couchdb
+>>> s = couchdb.Server('http://admin:admin@127.0.0.1:5984')
+>>> # create movies db
+>>> s.create('movies')
+```
+
 Running the React
 ------------
 
