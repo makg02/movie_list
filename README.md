@@ -12,6 +12,14 @@ Database Installation
 
 Visit [CouchDB](http://couchdb.apache.org/#download) download the latest version based on your environment.
 
+Linux
+-----
+http://docs.couchdb.org/en/1.6.1/install/unix.html
+
+Windows
+------
+http://docs.couchdb.org/en/1.6.1/install/windows.html
+
 After the installation run python command line.
 
 Then visit [http://127.0.0.1:5984](http://127.0.0.1:5984) and set admin account username and password to admin.
