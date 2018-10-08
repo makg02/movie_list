@@ -17,20 +17,6 @@ s = couchdb.Server(settings.COUCH_DSN)
 DB_MOVIES = s['movies']
 
 # Create your views here.
-#datetime.now().strftime('%B %d %Y %H:%M:%S')
-def get_ph_time(as_array = False):
-    utc_tz = timezone('UTC')
-    ph_tz = timezone('Asia/Manila')
-    now = utc_tz.localize(datetime.utcnow()).astimezone(ph_tz)
-
-    #set date without timezone
-    if as_array:
-        now = [now.year, now.month, now.day,
-            now.hour, now.minute, now.second, now.microsecond]
-    else:
-        now = datetime(now.year, now.month, now.day,
-            now.hour, now.minute, now.second, now.microsecond)
-    return now
 
 
 class MovieLists(View):
@@ -38,22 +24,27 @@ class MovieLists(View):
 
     def get(self, request):
 
-
+        tz = timezone('Asia/Manila')
+        now = tz.localize(datetime.now()).strftime("%B %d %Y %H:%M:%S")
         return_data = {}
+
+
         session_store = SessionStore()
 
 
         if not session_store.has_key('last_visit'):
-            print False
+            #print False
             return_data['is_visit'] = False
-            session_store['last_visit'] = get_ph_time().strftime('%B %d %Y %H:%M:%S')
+            session_store['last_visit'] = now
             session_store.save()
 
+
         if session_store['last_visit'] != None:
+            print True
             #session_store.pop('last_visit')
             return_data['is_visit'] = True
             return_data['last_visit_time'] = session_store.get('last_visit')
-            session_store['last_visit'] = get_ph_time().strftime('%B %d %Y %H:%M:%S')
+            session_store['last_visit'] = now
             session_store.save()
 
         view = DB_MOVIES.view('_all_docs', include_docs=True)
