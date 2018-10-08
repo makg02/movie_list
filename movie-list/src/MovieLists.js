@@ -56,8 +56,8 @@ class MovieLists extends Component {
       is_visit : false,
       vertical: 'top',
       horizontal: 'center',
-      last_visit_time : ''
-
+      last_visit_time : '',
+      openSnackBar : true,
     }
 
 
@@ -68,7 +68,7 @@ class MovieLists extends Component {
     axios.get('http://localhost:8000/movie_list')
       .then(res => {
 
-        console.log(res)
+        //console.log(res)
 
         const movies = res.data.movies;
         const is_visit = res.data.is_visit;
@@ -93,6 +93,11 @@ class MovieLists extends Component {
   handleClickOpen = () => {
    this.setState({ open: true });
  };
+
+ handleCloseSnackbar = () =>{
+   this.setState({ openSnackBar : false })
+ }
+
 
  handleDelete = (bool) => {
 
@@ -153,7 +158,7 @@ class MovieLists extends Component {
 
   render(){
 
-    console.log(this.state)
+    //console.log(this.state)
     const { classes } = this.props;
     const { vertical, horizontal, is_visit, last_visit_time} = this.state;
 
@@ -163,8 +168,9 @@ class MovieLists extends Component {
 
           <Snackbar
             anchorOrigin={{ vertical, horizontal }}
-            open={true}
-            onClose={this.handleClose}
+            open={this.state.openSnackBar}
+            onClose={this.handleCloseSnackbar}
+            autoHideDuration={6000}
             ContentProps={{
             'aria-describedby': 'message-id',
           }}
